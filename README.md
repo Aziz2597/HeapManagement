@@ -1,6 +1,6 @@
 # Malloc_free.c file
 
-Implements the “allocate” and “free” functions. It also ensures that adjacent free blacks are merged together.
+Implements the “allocate” and “free” functions. It also ensures that adjacent free blocks are merged together.
 
 ~~~C
 #include<stddef.h>
@@ -15,11 +15,17 @@ Implements the “allocate” and “free” functions. It also ensures that adj
 The **uintptr_t** type is defined in the **stdint.h** header and is used to represent an unsigned integer type that is capable of storing a pointer value. It's an integer type with the same size as a pointer on the platform, making it useful for converting pointers to integers and vice versa without loss of information.
 
 ~~~C
+#define MEMORY_POOL_SIZE 20000
+#define MIN_BLOCK_SIZE 32
+~~~
+Constanst are defined for memory pool size (MEMORY_POOL_SIZE) and minimum block size (MIN_BLOCK_SIZE).
+
+~~~C
 char memory[20000];
 ~~~
 
 This is the declaration of the array which is considered as our memory. We get a contiguous allocation of memory by using an array.
-Here, I assumed a block of memory of size 20,000 bytes char memory[20000];  (assuming that the storage for a character is 1 byte in the machine) and all the data structures and the allocated memory blocks reside in this same chunk of memory.
+Here, I assumed a block of memory of deifined memory poop size; (assuming that the storage for a character is 1 byte in the machine) and all the data structures and the allocated memory blocks reside in this same chunk of memory.
 
 ~~~C
 struct block *freeList=(void*)memory;
@@ -31,28 +37,31 @@ Here we initialize a pointer of type **"meta_block"**, named freeList pointing t
 /*Initializing the block of memory*/
 void initialize()
 {
- freeList->size=20000-sizeof(struct block); 
- freeList->free=1;
- freeList->next=NULL;
+    freeList->size = MEMORY_POOL_SIZE - sizeof(struct meta_block);
+    freeList->free = 1;
+    freeList->next = NULL;
 }
 ~~~
 
 This is where we initialize the first metadata block, update it to refer to the next block of memory.
-The size of the block that it refers to is (20000 bytes- the_size_of_one_metadata_block)
+The size of the block that it refers to is (size_of_memory_pool- the_size_of_one_metadata_block).
 To indicate that the block is not yet allocated, we set the free flag to 1.
 And the first metadata block has no next metadata block yet. So we set next to NULL.
 
 ~~~C
 /*Making way for a new block allocation by splitting a free block -- (Assume first fit algorithm)*/
-void split(struct block *fitting_slot,size_t size)
+void split(struct meta_block *fitting_slot, size_t size)
 {
- struct block *new=(void*)((void*)fitting_slot+size+sizeof(struct block));
- new->size=(fitting_slot->size)-size-sizeof(struct block);
- new->free=1;
- new->next=fitting_slot->next;
- fitting_slot->size=size;
- fitting_slot->free=0;
- fitting_slot->next=new;
+    if (fitting_slot->size >= size + MIN_BLOCK_SIZE + sizeof(struct meta_block))
+    {
+        struct meta_block *new = (void *)(((void *)fitting_slot) + size + sizeof(struct meta_block));
+        new->size = (fitting_slot->size) - size - sizeof(struct meta_block);
+        new->free = 1;
+        new->next = fitting_slot->next;
+        fitting_slot->size = size;
+        fitting_slot->free = 0;
+        fitting_slot->next = new;
+    }
 }
 ~~~
 
