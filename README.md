@@ -18,6 +18,7 @@ The **uintptr_t** type is defined in the **stdint.h** header and is used to repr
 #define MEMORY_POOL_SIZE 20000
 #define MIN_BLOCK_SIZE 32
 ~~~
+
 Constanst are defined for memory pool size (MEMORY_POOL_SIZE) and minimum block size (MIN_BLOCK_SIZE).
 
 ~~~C
@@ -114,7 +115,7 @@ We use the ``MyFree()`` function for that.
 It takes the pointer to a block of memory previously allocated as a parameter.
 
 ~~~C
-if(((void*)memory<=ptr)&&(ptr<=(void*)(memory+20000)))
+if (((void *)memory <= ptr) && (ptr <= (void *)(memory + MEMORY_POOL_SIZE)))
 ~~~
 
 Here we check whether the address to which the pointer given as an argument to the function actually lies within the address range of the memory array that we used for the purpose. If yes,we simply set the free flag in the metadata block to 1 indicating that it is free and scan through and merge the consecutive blocks that are free, if any.
