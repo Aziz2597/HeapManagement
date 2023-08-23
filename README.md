@@ -6,7 +6,13 @@ Implements the “allocate” and “free” functions. It also ensures that adj
 #include<stddef.h>
 ~~~
 
-**stddef.h** is required because the definition for size_t datatype is found there.
+**stddef.h** is required because the definition for **size_t** datatype is found there.
+
+~~~C
+#include<stdint.h>
+~~~
+
+The **uintptr_t** type is defined in the **stdint.h** header and is used to represent an unsigned integer type that is capable of storing a pointer value. It's an integer type with the same size as a pointer on the platform, making it useful for converting pointers to integers and vice versa without loss of information.
 
 ~~~C
 char memory[20000];
