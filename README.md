@@ -1,4 +1,3 @@
-# HeapManagement.c (Based on First Fit Algorithm)
 
 Implements the “allocate” and “free” functions. It also ensures that adjacent free blocks are merged together.
 
